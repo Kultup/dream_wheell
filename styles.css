@@ -1,0 +1,1142 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Montserrat', sans-serif;
+    width: 1280px;
+    height: 800px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    position: relative;
+    margin: 0 auto;
+}
+
+body.day-time {
+    background: #87CEEB;
+}
+
+body.night-time {
+    background: #1a237e;
+}
+
+body.cloudy {
+    background: linear-gradient(
+        to bottom,
+        #a5b1c2 0%,
+        #d1d8e0 100%
+    );
+}
+
+body.cloudy .sun {
+    opacity: 0.4;
+    filter: blur(2px);
+    animation: none;
+}
+
+body.cloudy .cloud {
+    opacity: 0.9;
+    background: linear-gradient(
+        to bottom,
+        #ecf0f1 0%,
+        #bdc3c7 100%
+    );
+    box-shadow: 
+        0 8px 15px rgba(0, 0, 0, 0.1),
+        inset 0 -3px 10px rgba(255, 255, 255, 0.8);
+}
+
+body.cloudy.day-time {
+    background: linear-gradient(
+        to bottom,
+        #b8c6db 0%,
+        #e2e8f0 50%,
+        #f5f6fa 100%
+    );
+}
+
+body.cloudy.night-time {
+    background: linear-gradient(
+        to bottom,
+        #2c3e50 0%,
+        #34495e 50%,
+        #465c7a 100%
+    );
+}
+
+#game-container {
+    background: rgba(255, 255, 255, 0.4);
+    border-radius: 20px;
+    padding: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    width: 1000px;
+    height: 650px;
+    position: relative;
+    z-index: 1;
+    backdrop-filter: none;
+    transform-style: preserve-3d;
+    perspective: 1000px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 8px;
+}
+
+.logo-container {
+    text-align: center;
+    padding: 5px 0;
+    height: 80px;
+    margin-bottom: 10px;
+}
+
+.logo {
+    height: 100%;
+    width: auto;
+    animation: logoFloat 3s ease-in-out infinite;
+    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5));
+}
+
+@keyframes logoFloat {
+    0% {
+        transform: translateY(0) scale(1);
+    }
+    50% {
+        transform: translateY(-10px) scale(1.05);
+    }
+    100% {
+        transform: translateY(0) scale(1);
+    }
+}
+
+#board {
+    display: grid;
+    grid-template-columns: repeat(4, 220px);
+    gap: 8px;
+    padding: 8px;
+    width: 100%;
+    height: 500px;
+    margin: 0 auto;
+    justify-content: center;
+    align-content: center;
+    position: relative;
+}
+
+.cell {
+    width: 220px;
+    height: 150px;
+    border-radius: 12px;
+    overflow: visible;
+    position: relative;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    will-change: transform;
+    transform: translateZ(0);
+}
+
+.cell:hover {
+    transform: scale(1.05);
+}
+
+.cell-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 15px;
+}
+
+.controls {
+    height: 70px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: -25px;
+    position: relative;
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    padding: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.dice-container {
+    perspective: 1000px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0;
+    margin-top: -30px;
+}
+
+.dice-row {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 5px;
+}
+
+.dice {
+    width: 70px;
+    height: 70px;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    margin: 8px;
+    will-change: transform;
+    transform: translateZ(0);
+    perspective: 1000px;
+}
+
+.dice .face {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: white;
+    border: 2px solid #1976d2;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2em;
+    font-weight: bold;
+    color: #1976d2;
+    backface-visibility: visible;
+    box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.1);
+}
+
+.dice .front { transform: translateZ(35px); }
+.dice .back { transform: rotateY(180deg) translateZ(35px); }
+.dice .top { transform: rotateX(-90deg) translateZ(35px); }
+.dice .bottom { transform: rotateX(90deg) translateZ(35px); }
+.dice .right { transform: rotateY(90deg) translateZ(35px); }
+.dice .left { transform: rotateY(-90deg) translateZ(35px); }
+
+.dice:hover {
+    transform: scale(1.1) translateZ(0);
+    box-shadow: 0 0 15px rgba(25, 118, 210, 0.3);
+}
+
+.dice:active {
+    transform: scale(0.95) translateZ(0);
+}
+
+/* Активная грань */
+.dice .face.active {
+    background: linear-gradient(145deg, #ffffff, #e3f2fd);
+    border-color: #1976d2;
+    color: #1976d2;
+    box-shadow: 
+        inset 0 0 20px rgba(25, 118, 210, 0.2),
+        0 0 10px rgba(25, 118, 210, 0.3);
+}
+
+/* Подсветка ячейки */
+.cell.active {
+    animation: cellHighlight 2s ease-in-out infinite;
+}
+
+@keyframes cellHighlight {
+    0%, 100% {
+        box-shadow: 0 0 30px rgba(255, 255, 255, 0.4);
+        transform: scale(1.02);
+    }
+    50% {
+        box-shadow: 0 0 50px rgba(255, 255, 255, 0.6);
+        transform: scale(1.03);
+    }
+}
+
+/* Удаляем старые стили для path-step и path-arrow */
+.path-step, .path-arrow {
+    display: none;
+}
+
+/* Контейнер для кубиков */
+.dice-container {
+    perspective: 1000px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+        padding: 20px;
+    }
+
+.dice-row {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin-bottom: 20px;
+}
+
+/* Анимация для подсветки активной ячейки */
+@keyframes cellHighlight {
+    0% { box-shadow: 0 0 20px rgba(25, 118, 210, 0.2); }
+    50% { box-shadow: 0 0 30px rgba(25, 118, 210, 0.4); }
+    100% { box-shadow: 0 0 20px rgba(25, 118, 210, 0.2); }
+}
+
+.cell.highlight {
+    animation: cellHighlight 1s ease-in-out infinite;
+}
+
+/* Анимации */
+@keyframes modalAppear {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes float {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0); }
+}
+
+@keyframes rainbow {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+@keyframes cellPulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+    }
+    50% {
+        transform: scale(1.02);
+        box-shadow: 0 0 30px rgba(255, 255, 255, 0.4);
+    }
+    100% { 
+        transform: scale(1);
+        box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+    }
+}
+
+@keyframes floatUpDown {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+    100% { transform: translateY(0); }
+}
+
+@keyframes simpleDiceRoll {
+    0% { transform: rotateX(0) rotateY(0); }
+    100% { transform: rotateX(360deg) rotateY(720deg); }
+}
+
+/* Базовые стили для дня/ночи */
+.sun, .moon, .cloud, .stars, .shooting-stars {
+    position: absolute;
+    z-index: 0;
+}
+
+/* Солнце */
+.sun {
+    width: 100px;
+    height: 100px;
+    background: radial-gradient(circle at center, #FFE87C 30%, #FFD700 70%);
+    border-radius: 50%;
+    box-shadow: 0 0 50px #FFD700, 0 0 100px #FFE87C;
+    top: 50px;
+    right: 100px;
+    animation: float 3s ease-in-out infinite;
+}
+
+/* Луна */
+.moon {
+    display: none;
+    position: fixed;
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(45deg, #f5f5f5, #e0e0e0);
+    border-radius: 50%;
+    box-shadow: 0 0 50px rgba(255, 255, 255, 0.5);
+    top: 20px;
+    right: 20px;
+    z-index: 2;
+    animation: moonGlow 4s ease-in-out infinite;
+}
+
+body.night-time .moon {
+    display: block;
+}
+
+@keyframes moonGlow {
+    0%, 100% {
+        box-shadow: 0 0 50px rgba(255, 255, 255, 0.5);
+    }
+    50% {
+        box-shadow: 0 0 70px rgba(255, 255, 255, 0.7);
+    }
+}
+
+/* Эффекты дождя */
+.rain-drop {
+    position: fixed;
+    pointer-events: none;
+    background: linear-gradient(
+        to bottom,
+        rgba(255, 255, 255, 0),
+        rgba(255, 255, 255, 0.6)
+    );
+    width: 2px;
+    height: 100px;
+    opacity: 0;
+    animation: rainDrop linear infinite;
+}
+
+@keyframes rainDrop {
+    0% {
+        transform: translateY(-100vh) skewX(-15deg);
+        opacity: 0;
+    }
+    5% {
+        opacity: 0.8;
+    }
+    90% {
+        opacity: 0.8;
+    }
+    100% {
+        transform: translateY(100vh) skewX(-15deg);
+        opacity: 0;
+    }
+}
+
+/* Стили для капель на экране */
+.rain-streak {
+    position: fixed;
+    pointer-events: none;
+    background: linear-gradient(
+        to bottom,
+        rgba(255, 255, 255, 0.1),
+        rgba(255, 255, 255, 0.4)
+    );
+    width: 3px;
+    border-radius: 50%;
+    opacity: 0;
+    filter: blur(1px);
+    animation: rainStreak linear infinite;
+}
+
+@keyframes rainStreak {
+    0% {
+        height: 0;
+        top: -10%;
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        height: 200px;
+        top: 100%;
+        opacity: 0;
+    }
+}
+
+/* Облака для разных погодных условий */
+.cloud {
+    opacity: 0;
+    transition: all 0.5s ease;
+}
+
+/* Ясная погода - минимум облаков */
+body.clear .cloud {
+    opacity: 0.2;
+}
+
+body.clear .cloud:nth-child(n+4) {
+    opacity: 0;
+}
+
+/* Облачная погода - много облаков */
+body.cloudy .cloud {
+    opacity: 0.9;
+    animation: cloudFloat 20s linear infinite;
+}
+
+/* Дождливая погода - темные плотные облака */
+body.rain .cloud {
+    opacity: 0.95;
+    background: linear-gradient(
+        to bottom,
+        #4a5568 0%,
+        #2d3748 100%
+    );
+    filter: brightness(0.8);
+}
+
+@keyframes cloudFloat {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100vw);
+    }
+}
+
+/* Анимация для облаков */
+.cloud:nth-child(1) { animation-delay: 0s; }
+.cloud:nth-child(2) { animation-delay: 4s; }
+.cloud:nth-child(3) { animation-delay: 8s; }
+.cloud:nth-child(4) { animation-delay: 12s; }
+.cloud:nth-child(5) { animation-delay: 16s; }
+
+/* Ночные облака */
+body.night-time .cloud {
+    background: rgba(100, 100, 150, 0.4);
+}
+
+body.night-time .cloud::before,
+body.night-time .cloud::after {
+    background: rgba(100, 100, 150, 0.4);
+}
+
+/* Оптимизированные стили для травы */
+.grass {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 120px;
+    background: linear-gradient(
+        to bottom,
+        #4CAF50 0%,
+        #66BB6A 35%,
+        #81C784 100%
+    );
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1;
+}
+
+/* Цветы на траве */
+.flower {
+    position: absolute;
+    bottom: 60px;
+    width: 20px;
+    height: 40px;
+}
+
+.flower::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 2px;
+    height: 30px;
+    background: #66BB6A;
+    transform: translateX(-50%);
+}
+
+.flower::after {
+    content: '🌸';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 20px;
+}
+
+/* Оптимизированные цвета цветов */
+.flower:nth-child(3n)::before {
+    background: radial-gradient(circle at center, 
+        rgba(255, 105, 180, 0.6) 0%, 
+        rgba(255, 20, 147, 0.6) 100%
+    );
+}
+
+.flower:nth-child(3n+1)::before {
+    background: radial-gradient(circle at center, 
+        rgba(255, 215, 0, 0.6) 0%, 
+        rgba(255, 140, 0, 0.6) 100%
+    );
+}
+
+.flower:nth-child(3n+2)::before {
+    background: radial-gradient(circle at center, 
+        rgba(147, 112, 219, 0.6) 0%, 
+        rgba(75, 0, 130, 0.6) 100%
+    );
+}
+
+/* Распределение цветов */
+.flower:nth-child(1) { left: 5%; animation-delay: -0.2s; }
+.flower:nth-child(2) { left: 15%; animation-delay: -0.4s; }
+.flower:nth-child(3) { left: 25%; animation-delay: -0.6s; }
+.flower:nth-child(4) { left: 35%; animation-delay: -0.8s; }
+.flower:nth-child(5) { left: 45%; animation-delay: -1.0s; }
+.flower:nth-child(6) { left: 55%; animation-delay: -1.2s; }
+.flower:nth-child(7) { left: 65%; animation-delay: -1.4s; }
+.flower:nth-child(8) { left: 75%; animation-delay: -1.6s; }
+.flower:nth-child(9) { left: 85%; animation-delay: -1.8s; }
+.flower:nth-child(10) { left: 95%; animation-delay: -2.0s; }
+
+@keyframes flowerSway {
+    0%, 100% {
+        transform: rotate(-3deg);
+    }
+    50% {
+        transform: rotate(3deg);
+    }
+}
+
+/* Звезды */
+.stars {
+    display: none;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+}
+
+body.night-time .stars {
+    display: block;
+}
+
+.star {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: white;
+    border-radius: 50%;
+    animation: twinkle 1s ease-in-out infinite;
+}
+
+/* Падающие звезды */
+.shooting-stars {
+    display: none;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 2;
+}
+
+body.night-time .shooting-stars {
+    display: block;
+}
+
+@keyframes shooting-star {
+    0% {
+        transform: translateX(-100%) translateY(-100%) rotate(45deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translateX(200%) translateY(200%) rotate(45deg);
+        opacity: 0;
+    }
+}
+
+/* Анимация мерцания звезд */
+@keyframes twinkle {
+    0%, 100% {
+        opacity: 0.3;
+    }
+    50% {
+        opacity: 1;
+    }
+}
+
+body.day-time .sun, 
+body.day-time .cloud { 
+    display: block;
+}
+
+body.night-time .stars, 
+body.night-time .shooting-stars { 
+    display: block; 
+}
+
+.player-piece {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 36px;
+    z-index: 10;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    transform: translateZ(0);
+    will-change: transform;
+    top: 10px;
+    left: 10px;
+}
+
+.player-piece.moving {
+    animation: bounce 0.5s ease-in-out;
+}
+
+@keyframes bounce {
+    0% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+    100% {
+        transform: translateY(0);
+    }
+}
+
+.path-indicator {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    pointer-events: none;
+    z-index: 90;
+    animation: pathPulse 1s ease-in-out infinite;
+}
+
+@keyframes pathPulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 0.3;
+    }
+    50% {
+        transform: scale(1.2);
+        opacity: 0.6;
+    }
+}
+
+.next-cell {
+    position: relative;
+}
+
+.next-cell::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border: 3px dashed rgba(255, 255, 255, 0.6);
+    border-radius: 15px;
+    animation: nextCellPulse 1s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes nextCellPulse {
+    0%, 100% {
+        opacity: 0.4;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.8;
+        transform: scale(1.02);
+    }
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.modal-content {
+    background: white;
+    padding: 25px;
+    border-radius: 18px;
+    max-width: 350px;
+    width: 90%;
+    text-align: center;
+    position: relative;
+    animation: modalAppear 0.3s ease-out;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.prize-header {
+        margin-bottom: 20px;
+    }
+
+.prize-header h2 {
+    color: #1976d2;
+    font-size: 22px;
+    margin: 0;
+}
+
+.prize-image-container {
+    margin: 20px 0;
+}
+
+.prize-image-container img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.prize-description {
+    font-size: 16px;
+    color: #333;
+    margin: 15px 0;
+    line-height: 1.4;
+}
+
+#close-modal {
+    background: #1976d2;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 25px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 20px;
+}
+
+#close-modal:hover {
+    background: #1565c0;
+    transform: scale(1.05);
+}
+
+#roll-button {
+    background: linear-gradient(45deg, #1976d2, #2196f3);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 20px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 15px;
+    position: relative;
+    overflow: hidden;
+}
+
+#roll-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(33, 150, 243, 0.4);
+    background: linear-gradient(45deg, #2196f3, #1976d2);
+}
+
+#roll-button:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 10px rgba(33, 150, 243, 0.3);
+}
+
+#roll-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.2),
+        transparent
+    );
+    transition: 0.5s;
+}
+
+#roll-button:hover::before {
+    left: 100%;
+}
+
+#roll-button:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Погодные эффекты */
+/* Ясная погода */
+body.clear.day-time {
+    background: linear-gradient(
+        to bottom,
+        #87CEEB 0%,
+        #B0E2FF 50%,
+        #E0FFFF 100%
+    );
+}
+
+body.clear.night-time {
+    background: linear-gradient(
+        to bottom,
+        #1a237e 0%,
+        #283593 50%,
+        #3949ab 100%
+    );
+}
+
+/* Облачная погода */
+body.cloudy.day-time {
+    background: linear-gradient(
+        to bottom,
+        #a5b1c2 0%,
+        #d1d8e0 50%,
+        #e2e8f0 100%
+    );
+}
+
+body.cloudy.night-time {
+    background: linear-gradient(
+        to bottom,
+        #2c3e50 0%,
+        #34495e 50%,
+        #465c7a 100%
+    );
+}
+
+body.cloudy .sun {
+    opacity: 0.3;
+    filter: blur(3px);
+}
+
+body.cloudy .cloud {
+    opacity: 0.9;
+    background: linear-gradient(
+        to bottom,
+        rgba(255, 255, 255, 0.9) 0%,
+        rgba(240, 240, 240, 0.8) 100%
+    );
+    box-shadow: 
+        0 8px 15px rgba(0, 0, 0, 0.1),
+        inset 0 -3px 10px rgba(255, 255, 255, 0.8);
+}
+
+body.cloudy.night-time .cloud {
+    background: linear-gradient(
+        to bottom,
+        rgba(44, 62, 80, 0.9) 0%,
+        rgba(52, 73, 94, 0.8) 100%
+    );
+    box-shadow: 
+        0 8px 15px rgba(0, 0, 0, 0.2),
+        inset 0 -3px 10px rgba(255, 255, 255, 0.1);
+}
+
+/* Дождь */
+body.rain.day-time {
+    background: linear-gradient(
+        to bottom,
+        #4682B4 0%,
+        #5C90B4 50%,
+        #6E9EBF 100%
+    );
+}
+
+body.rain.night-time {
+    background: linear-gradient(
+        to bottom,
+        #1F3A4D 0%,
+        #2C5474 50%,
+        #386A8C 100%
+    );
+}
+
+body.rain .cloud {
+    background: linear-gradient(
+        to bottom,
+        #708090 0%,
+        #4A5459 100%
+    );
+    opacity: 0.95;
+}
+
+/* Снег */
+body.snow.day-time {
+    background: linear-gradient(
+        to bottom,
+        #B0E0E6 0%,
+        #E0FFFF 50%,
+        #F0FFFF 100%
+    );
+}
+
+body.snow.night-time {
+    background: linear-gradient(
+        to bottom,
+        #2C3E50 0%,
+        #34495E 50%,
+        #465C7A 100%
+    );
+}
+
+.snowflake {
+    position: fixed;
+    pointer-events: none;
+    width: 6px;
+    height: 6px;
+    background: white;
+    border-radius: 50%;
+    filter: blur(1px);
+    box-shadow: 0 0 5px white;
+    opacity: 0.8;
+    animation: snowFall linear infinite;
+}
+
+body.snow .cloud {
+    background: linear-gradient(
+        to bottom,
+        rgba(255, 255, 255, 0.9) 0%,
+        rgba(240, 240, 240, 0.8) 100%
+    );
+    opacity: 0.9;
+}
+
+/* Гроза */
+body.thunderstorm.day-time {
+    background: linear-gradient(
+        to bottom,
+        #2F4F4F 0%,
+        #3B5B5B 50%,
+        #476B6B 100%
+    );
+}
+
+body.thunderstorm.night-time {
+    background: linear-gradient(
+        to bottom,
+        #1C2E2E 0%,
+        #243939 50%,
+        #2C4444 100%
+    );
+}
+
+.lightning {
+    position: fixed;
+    pointer-events: none;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    animation: lightning 8s infinite;
+    opacity: 0;
+    z-index: 2;
+}
+
+body.thunderstorm .cloud {
+    background: linear-gradient(
+        to bottom,
+        #363636 0%,
+        #1C2E2E 100%
+    );
+    opacity: 0.95;
+    box-shadow: 
+        0 8px 15px rgba(0, 0, 0, 0.3),
+        inset 0 -3px 10px rgba(255, 255, 255, 0.1);
+}
+
+/* Анимации для погодных эффектов */
+@keyframes rainFall {
+    0% {
+        transform: translateY(-120vh) rotate(15deg);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(120vh) rotate(15deg);
+        opacity: 0;
+    }
+}
+
+@keyframes snowFall {
+    0% {
+        transform: translateY(-120vh) rotate(0deg);
+        opacity: 0;
+    }
+    10% {
+        opacity: 0.8;
+    }
+    90% {
+        opacity: 0.8;
+    }
+    100% {
+        transform: translateY(120vh) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+@keyframes lightning {
+    0%, 95%, 98% {
+        opacity: 0;
+    }
+    96%, 99% {
+        opacity: 1;
+        background: rgba(255, 255, 255, 0.2);
+    }
+    97%, 100% {
+        opacity: 0;
+    }
+}
+
+#location-info {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(5px);
+    padding: 8px 15px;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    transition: all 0.3s ease;
+}
+
+.location-details {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: white;
+    font-size: 14px;
+    font-weight: 500;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.city-name {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.temperature {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+#location-info:hover {
+    transform: scale(1.05);
+    background: rgba(255, 255, 255, 0.3);
+}
+

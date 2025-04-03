@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Країна мрій - Гра</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+</head>
+
+<body>
+    <!-- Денні елементи -->
+    <div class="sun"></div>
+    <div class="cloud"></div>
+    <div class="cloud"></div>
+    <div class="cloud"></div>
+    <div class="cloud"></div>
+    <div class="cloud"></div>
+    <div class="cloud"></div>
+    <div class="cloud"></div>
+    <div class="cloud"></div>
+    <div class="cloud"></div>
+    <div class="cloud"></div>
+    <div class="cloud"></div>
+    <div class="cloud"></div>
+    <div class="cloud"></div>
+    <div class="cloud"></div>
+    
+    <!-- Нічні елементи -->
+    <div class="moon"></div>
+    <div class="stars"></div>
+    <div class="shooting-stars"></div>
+
+    <!-- Кубики -->
+    <div class="dice-container">
+        <div class="dice" id="dice1">
+            <div class="face front">1</div>
+        </div>
+        <div class="dice" id="dice2">
+            <div class="face front">1</div>
+        </div>
+    </div>
+
+    <!-- Трава и цветы -->
+    <div class="grass">
+        <div class="flower"></div>
+        <div class="flower"></div>
+        <div class="flower"></div>
+        <div class="flower"></div>
+        <div class="flower"></div>
+        <div class="flower"></div>
+        <div class="flower"></div>
+        <div class="flower"></div>
+        <div class="flower"></div>
+        <div class="flower"></div>
+        <div class="flower"></div>
+        <div class="flower"></div>
+        <div class="flower"></div>
+        <div class="flower"></div>
+        <div class="flower"></div>
+    </div>
+
+    <div id="game-container">
+        <img src="logo.png" alt="Країна мрій" class="logo">
+        
+        <div class="game-layout">
+            <div id="board">
+                <div class="cell" data-cell="1">
+                    <img src="images/prizes/milk-shake.jpg" alt="Мілк-шейк" class="cell-image">
+                    <div id="player" class="player-piece" data-position="1"></div>
+                </div>
+                <div class="cell" data-cell="2">
+                    <img src="images/prizes/500grn.png" alt="500 грн" class="cell-image">
+                </div>
+                <div class="cell" data-cell="3">
+                    <img src="images/prizes/one-entry.jpg" alt="1 вхід" class="cell-image">
+                </div>
+                <div class="cell" data-cell="4">
+                    <img src="images/prizes/dessert.jpg" alt="Десерт" class="cell-image">
+                </div>
+                <div class="cell" data-cell="5">
+                    <img src="images/prizes/aquagrim.png" alt="Аквагрим" class="cell-image">
+                </div>
+                <div class="cell" data-cell="6">
+                    <img src="images/prizes/pizza.jpg" alt="Піца" class="cell-image">
+                </div>
+                <div class="cell" data-cell="7">
+                    <img src="images/prizes/hero.png" alt="Герой" class="cell-image">
+                </div>
+                <div class="cell" data-cell="8">
+                    <img src="images/prizes/vr.jpg" alt="VR" class="cell-image">
+                </div>
+                <div class="cell" data-cell="9">
+                    <img src="images/prizes/discount-5.jpeg" alt="-5%" class="cell-image">
+                </div>
+                <div class="cell" data-cell="10">
+                    <img src="images/prizes/wheel.jpg" alt="Колесо" class="cell-image">
+                </div>
+                <div class="cell" data-cell="11">
+                    <img src="images/prizes/balloons.png" alt="Кульки" class="cell-image">
+                </div>
+                <div class="cell" data-cell="12">
+                    <img src="images/prizes/discount-10.png" alt="-10%" class="cell-image">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="prize-modal" class="modal">
+        <div class="modal-content">
+            <div class="prize-header">
+                <h2>🎉 Вітаємо! 🎉</h2>
+                <div class="sparkles"></div>
+            </div>
+            <p id="prize-text"></p>
+            <button id="close-modal">Чудово! ✨</button>
+        </div>
+    </div>
+
+    <style>
+    .randomizer-display {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin-bottom: 10px;
+        perspective: 1000px;
+    }
+
+    .randomizer-drum {
+        width: 60px;
+        height: 80px;
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(145deg, #ffffff, #f0f0f0);
+        border-radius: 8px;
+        border: 2px solid #1976d2;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .drum-numbers {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        transform-style: preserve-3d;
+        transition: transform 0.1s ease;
+    }
+
+    .drum-numbers div {
+        height: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        font-weight: bold;
+        color: #1976d2;
+        transform: translateZ(30px);
+    }
+
+    @keyframes drumRoll {
+        0% { transform: translateY(0); }
+        100% { transform: translateY(-560px); }
+    }
+
+    .drum-numbers.rolling {
+        animation: drumRoll 1.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .drum-numbers.final {
+        animation: none;
+    }
+
+    #game-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 10px;
+    }
+
+    .logo {
+        height: 60px;
+        width: auto;
+        margin: 0 auto 20px;
+        display: block;
+    }
+
+    .game-layout {
+        display: flex;
+        gap: 30px;
+        align-items: flex-start;
+    }
+
+    .dice-container {
+        position: fixed;
+        top: 50%;
+        left: 0px;
+        transform: translateY(-50%);
+        display: flex;
+        flex-direction: column;
+        gap: 40px;
+        padding: 20px;
+        z-index: 1000;
+    }
+
+    .dice {
+        width: 100px;
+        height: 100px;
+        position: relative;
+        cursor: pointer;
+        margin: 0 auto;
+    }
+
+    .face {
+        position: absolute;
+        width: 100px;
+        height: 100px;
+        background: white;
+        border: 4px solid #1565c0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 60px;
+        font-weight: bold;
+        color: #1565c0;
+        box-sizing: border-box;
+        border-radius: 16px;
+        box-shadow: none;
+    }
+
+    @keyframes press {
+        0% { transform: scale(1); }
+        50% { transform: scale(0.95); }
+        100% { transform: scale(1); }
+    }
+
+    @keyframes numberShuffle {
+        0% { content: "1"; }
+        16.6% { content: "2"; }
+        33.2% { content: "3"; }
+        49.8% { content: "4"; }
+        66.4% { content: "5"; }
+        83% { content: "6"; }
+        100% { content: "1"; }
+    }
+
+    .dice.rolling .front::before {
+        content: "1";
+        animation: numberShuffle 0.3s linear infinite;
+    }
+
+    .dice.rolling .front {
+        animation: press 0.2s ease-in-out;
+        font-size: 0;
+    }
+
+    #board {
+        flex: 1;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+        padding: 15px;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 15px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    </style>
+
+    <script>
+        // Кэшируем DOM элементы
+        const player = document.getElementById('player');
+        const board = document.getElementById('board');
+        const dice1 = document.getElementById('dice1');
+        const dice2 = document.getElementById('dice2');
+        const modal = document.getElementById('prize-modal');
+        const prizeText = document.getElementById('prize-text');
+        const closeModalButton = document.getElementById('close-modal');
+        
+        // Список призів
+        const prizes = [
+            "Мілк-шейк для іменинника/ці 🥤",
+            "500 грн у додатку на ресторан 💰",
+            "1 вхід (нарахування в додаток) 🎫",
+            "Десерт на вибір імениннику/ці 🍰",
+            "Аквагрим імениннику (сертифікат) 🎨",
+            "Сертифікат на піцу (в додатку) 🍕",
+            "Привітання від героя (виніс торта) 🎉",
+            "Перегляд VR (додаток) 🕶️",
+            "Знижка 5% на банкет по кухні та бару 🍽️",
+            "Покрутити колесо мрій для батьків 🎡",
+            "Кульки-цифра з гелієм 🎈",
+            "Знижка 10% на виїзну анімацію 🎪"
+        ];
+
+        // Оптимизируем создание звезд
+        function createStars() {
+            const stars = document.querySelector('.stars');
+            const fragment = document.createDocumentFragment();
+            const starCount = window.innerWidth < 768 ? 25 : 50;
+            
+            stars.innerHTML = '';
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.cssText = `
+                    left: ${Math.random() * 100}%;
+                    top: ${Math.random() * 100}%;
+                    animation-delay: ${Math.random() * 3}s;
+                `;
+                fragment.appendChild(star);
+            }
+            stars.appendChild(fragment);
+        }
+
+        // Оптимизируем создание падающих звезд
+        function createShootingStars() {
+            const container = document.querySelector('.shooting-stars');
+            let timeout;
+            
+            function createStar() {
+                if (!document.body.classList.contains('night-time')) return;
+
+                const star = document.createElement('div');
+                star.style.cssText = `
+                    position: absolute;
+                    width: 2px;
+                    height: 2px;
+                    background: white;
+                    box-shadow: 0 0 5px white;
+                    top: ${Math.random() * 50}%;
+                    left: ${Math.random() * 50}%;
+                    animation: shooting-star 1s linear forwards;
+                `;
+                
+                container.appendChild(star);
+                setTimeout(() => star.remove(), 1000);
+                
+                timeout = setTimeout(createStar, Math.random() * 5000 + 3000);
+            }
+
+            createStar();
+            return () => clearTimeout(timeout);
+        }
+
+        // Оптимизируем установку времени суток
+        function setTimeOfDay() {
+            const hour = new Date().getHours();
+            const isDay = hour >= 6 && hour < 20;
+            
+            document.body.classList.toggle('day-time', isDay);
+            document.body.classList.toggle('night-time', !isDay);
+            
+            const celestialBody = isDay ? document.querySelector('.sun') : document.querySelector('.moon');
+            if (!celestialBody) return;
+
+            const progress = isDay ? (hour - 6) / 14 : (hour < 6 ? hour + 4 : hour - 20) / 10;
+            const x = Math.sin(progress * Math.PI) * 40 + 50;
+            const y = Math.cos(progress * Math.PI) * 20 + 20;
+            
+            celestialBody.style.transform = `translate(${x}%, ${y}%)`;
+        }
+
+        // Оптимизируем движение фишки
+        function createPathVisualization(currentPosition, steps) {
+            const totalCells = 12;
+            const pathContainer = document.createElement('div');
+            pathContainer.className = 'path-visualization';
+            document.getElementById('board').appendChild(pathContainer);
+
+            // Create path steps
+            for (let i = 1; i <= steps; i++) {
+                let stepPosition = (currentPosition + i) > totalCells ? 
+                    (currentPosition + i - totalCells) : (currentPosition + i);
+                
+                const currentCell = document.querySelector(`.cell[data-cell="${stepPosition}"]`);
+                const cellRect = currentCell.getBoundingClientRect();
+                const boardRect = board.getBoundingClientRect();
+
+                // Create step indicator
+                const step = document.createElement('div');
+                step.className = 'path-step';
+                step.style.left = `${cellRect.left - boardRect.left + cellRect.width/2 - 15}px`;
+                step.style.top = `${cellRect.top - boardRect.top + cellRect.height/2 - 15}px`;
+                step.style.animationDelay = `${i * 0.2}s`;
+                pathContainer.appendChild(step);
+
+                // Create arrow between steps if not the last step
+                if (i < steps) {
+                    const nextPosition = (stepPosition + 1) > totalCells ? 1 : (stepPosition + 1);
+                    const nextCell = document.querySelector(`.cell[data-cell="${nextPosition}"]`);
+                    const nextRect = nextCell.getBoundingClientRect();
+
+                    const arrow = document.createElement('div');
+                    arrow.className = 'path-arrow';
+                    
+                    // Calculate arrow position and rotation
+                    const startX = cellRect.left - boardRect.left + cellRect.width/2;
+                    const startY = cellRect.top - boardRect.top + cellRect.height/2;
+                    const endX = nextRect.left - boardRect.left + nextRect.width/2;
+                    const endY = nextRect.top - boardRect.top + nextRect.height/2;
+                    
+                    const angle = Math.atan2(endY - startY, endX - startX) * 180 / Math.PI;
+                    const length = Math.sqrt(Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2));
+
+                    arrow.style.left = `${startX}px`;
+                    arrow.style.top = `${startY}px`;
+                    arrow.style.width = `${length}px`;
+                    arrow.style.transform = `rotate(${angle}deg)`;
+                    
+                    pathContainer.appendChild(arrow);
+                }
+            }
+
+            // Remove path visualization after animation
+            setTimeout(() => {
+                pathContainer.remove();
+            }, (steps + 1) * 1000);
+        }
+
+        function rollDice() {
+            const dice = document.querySelectorAll('.dice');
+            if (dice.length === 0) return;
+
+            console.log('🎲 Начинаем бросок кубиков...');
+
+            // Блокируем кубики во время броска
+            dice.forEach(die => {
+                die.style.pointerEvents = 'none';
+            });
+
+            let totalSteps = 0;
+            let diceRolled = 0;
+            let results = [];
+
+            // Генерируем результаты заранее
+            dice.forEach(() => {
+                results.push(Math.floor(Math.random() * 6) + 1);
+            });
+
+            // Анимация броска для каждого кубика
+            dice.forEach((die, index) => {
+                const frontFace = die.querySelector('.front');
+                die.classList.add('rolling');
+                
+                // Быстрое перебирание чисел
+                let shuffleInterval = setInterval(() => {
+                    frontFace.textContent = Math.floor(Math.random() * 6) + 1;
+                }, 50);
+                
+                setTimeout(() => {
+                    clearInterval(shuffleInterval);
+                    die.classList.remove('rolling');
+                    const result = results[index];
+                    frontFace.textContent = result;
+                    
+                    console.log(`🎲 Кубик ${index + 1} выпал: ${result}`);
+                    totalSteps += result;
+                    diceRolled++;
+                    
+                    // Если оба кубика брошены, перемещаем фишку
+                    if (diceRolled === 2) {
+                        console.log(`🎲 Общая сумма: ${totalSteps}`);
+                        movePiece(totalSteps);
+                        
+                        // Разблокируем кубики через 2 секунды после броска
+                        setTimeout(() => {
+                            dice.forEach(die => {
+                                die.style.pointerEvents = 'auto';
+                            });
+                        }, 2000);
+                    }
+                }, 1500);
+            });
+        }
+
+        function movePiece(steps) {
+            const player = document.querySelector('.player-piece');
+            if (!player) return;
+
+            const currentPosition = parseInt(player.dataset.position);
+            let nextPosition = currentPosition;
+            let stepsLeft = steps;
+
+            console.log(`🚶 Начинаем движение с позиции ${currentPosition}, нужно пройти ${steps} шагов`);
+
+            function moveToNextCell() {
+                if (stepsLeft > 0) {
+                    nextPosition = nextPosition % 12;
+                    if (nextPosition === 0) nextPosition = 12;
+                    stepsLeft--;
+                    
+                    console.log(`🚶 Шаг ${steps - stepsLeft}/${steps}: Перемещаемся на позицию ${nextPosition}`);
+            
+                    const nextCell = document.querySelector(`[data-cell="${nextPosition}"]`);
+            
+                    if (nextCell) {
+                        player.classList.add('moving');
+                        
+                        const rect = nextCell.getBoundingClientRect();
+                        const boardRect = document.getElementById('board').getBoundingClientRect();
+                        
+                        player.style.position = 'absolute';
+                        player.style.top = `${rect.top - boardRect.top + 20}px`;
+                        player.style.left = `${rect.left - boardRect.left + 20}px`;
+                        player.style.zIndex = '9999';
+                        
+                        nextCell.classList.add('next-cell');
+                        
+                        setTimeout(() => {
+                            player.classList.remove('moving');
+                            nextCell.classList.remove('next-cell');
+                            player.dataset.position = nextPosition.toString();
+                            
+                            if (stepsLeft > 0) {
+                                nextPosition++;
+                                setTimeout(() => {
+                                    moveToNextCell();
+                                }, 500);
+                            } else {
+                                console.log(`🎯 Движение завершено! Фишка остановилась на позиции ${nextPosition}`);
+                                // Показываем приз только когда все шаги завершены
+                                checkSpecialCell(nextPosition);
+                                
+                                // Через 3 секунды возвращаем фишку на старт
+                                setTimeout(() => {
+                                    console.log('🏁 Возвращаем фишку на стартовую позицию');
+                                    const firstCell = document.querySelector('.cell[data-cell="1"]');
+                                    const boardRect = document.getElementById('board').getBoundingClientRect();
+                                    const rect = firstCell.getBoundingClientRect();
+                                    
+                                    // Добавляем плавную анимацию
+                                    player.style.transition = 'all 1s cubic-bezier(0.4, 0, 0.2, 1)';
+                                    player.classList.add('moving');
+                                    
+                                    // Добавляем небольшой подъем перед движением
+                                    player.style.transform = 'translateY(-20px)';
+                                    
+                                    setTimeout(() => {
+                                        // Перемещаем на первую клетку
+                                        player.style.top = `${rect.top - boardRect.top + 20}px`;
+                                        player.style.left = `${rect.left - boardRect.left + 20}px`;
+                                        player.style.transform = 'translateY(0)';
+                                        player.dataset.position = '1';
+                                        
+                                        // Убираем классы анимации после завершения
+                                        setTimeout(() => {
+                                            player.classList.remove('moving');
+                                            player.style.transition = '';
+                                        }, 1000);
+                                    }, 100);
+                                }, 3000);
+                            }
+                        }, 500);
+                    }
+                }
+            }
+
+            moveToNextCell();
+        }
+
+        // Функция проверки специальных клеток
+        function checkSpecialCell(position) {
+            // Проверяем, есть ли приз на этой позиции
+            if (position >= 1 && position <= 12) {
+                showPrize(position);
+            }
+        }
+
+        // Показ призу
+        function showPrize(position) {
+            if (position >= 1 && position <= prizes.length) {
+                const currentCell = document.querySelector(`.cell[data-cell="${position}"]`);
+                const prizeImage = currentCell.querySelector('.cell-image');
+                
+                // Формируем содержимое модального окна
+                const prizeHtml = `
+                    <div class="prize-image-container">
+                        <img src="${prizeImage.src}" alt="Prize">
+                    </div>
+                    <div class="prize-description">
+                        ${prizes[position - 1]}
+                    </div>
+                `;
+                
+                prizeText.innerHTML = prizeHtml;
+                modal.style.display = 'flex';
+                
+                // Запускаем конфетти
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+
+                // Дополнительный салют
+                setTimeout(() => {
+                    confetti({
+                        particleCount: 50,
+                        angle: 60,
+                        spread: 55,
+                        origin: { x: 0 }
+                    });
+                    confetti({
+                        particleCount: 50,
+                        angle: 120,
+                        spread: 55,
+                        origin: { x: 1 }
+                    });
+                }, 500);
+            }
+        }
+
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeOfDay();
+            createStars();
+            const cleanup = createShootingStars();
+            
+            // Обработчики событий для кубиков
+            const dice1 = document.getElementById('dice1');
+            const dice2 = document.getElementById('dice2');
+            
+            if (dice1 && dice2) {
+                console.log('🎲 Добавляем обработчики для кубиков');
+                dice1.addEventListener('click', () => {
+                    console.log('🎲 Нажатие на первый кубик');
+                    rollDice();
+                });
+                dice2.addEventListener('click', () => {
+                    console.log('🎲 Нажатие на второй кубик');
+                    rollDice();
+                });
+            } else {
+                console.error('❌ Кубики не найдены на странице');
+            }
+            
+            closeModalButton.addEventListener('click', () => modal.style.display = 'none');
+            
+            // Обновление времени суток
+            setInterval(setTimeOfDay, 60000);
+            
+            // Очистка при выгрузке страницы
+            window.addEventListener('unload', cleanup);
+
+            // Устанавливаем начальную позицию фишки
+            const player = document.getElementById('player');
+            const firstCell = document.querySelector('.cell[data-cell="1"]');
+            const board = document.getElementById('board');
+            
+            if (player && firstCell && board) {
+                const rect = firstCell.getBoundingClientRect();
+                const boardRect = board.getBoundingClientRect();
+                
+                player.style.position = 'absolute';
+                player.style.top = `${rect.top - boardRect.top + 20}px`;
+                player.style.left = `${rect.left - boardRect.left + 20}px`;
+                player.style.zIndex = '9999';
+                player.dataset.position = '1';
+                
+                // Добавляем фишку непосредственно в board
+                board.appendChild(player);
+            }
+        });
+    </script>
+</body>
+
+</html>
