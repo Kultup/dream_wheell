@@ -69,7 +69,7 @@
             <div id="board">
                 <div class="cell" data-cell="1">
                     <img src="images/prizes/milk-shake.jpg" alt="Мілк-шейк" class="cell-image">
-                    <div id="player" class="player-piece" data-position="1"></div>
+                    <div id="player" class="player-piece" data-position="1">🌈</div>
                 </div>
                 <div class="cell" data-cell="2">
                     <img src="images/prizes/500grn.png" alt="500 грн" class="cell-image">
@@ -266,6 +266,18 @@
         background: rgba(255, 255, 255, 0.9);
         border-radius: 15px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .player-piece {
+        font-size: 24px;
+        animation: pulse 2s ease-in-out infinite;
+        transition: all 0.5s ease;
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.2); }
+        100% { transform: scale(1); }
     }
     </style>
 
