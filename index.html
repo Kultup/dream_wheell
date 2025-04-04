@@ -625,7 +625,48 @@
             }
         }
 
-        // Инициализация
+        // Функция оптимизации изображения
+        function optimizeImage(img) {
+            return new Promise((resolve) => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                
+                // Максимальные размеры
+                const MAX_WIDTH = 400;
+                const MAX_HEIGHT = 400;
+                
+                let width = img.width;
+                let height = img.height;
+                
+                // Вычисляем новые размеры, сохраняя пропорции
+                if (width > height) {
+                    if (width > MAX_WIDTH) {
+                        height = Math.round(height * MAX_WIDTH / width);
+                        width = MAX_WIDTH;
+                    }
+                } else {
+                    if (height > MAX_HEIGHT) {
+                        width = Math.round(width * MAX_HEIGHT / height);
+                        height = MAX_HEIGHT;
+                    }
+                }
+                
+                // Устанавливаем размеры canvas
+                canvas.width = width;
+                canvas.height = height;
+                
+                // Рисуем изображение с новыми размерами
+                ctx.drawImage(img, 0, 0, width, height);
+                
+                // Конвертируем в оптимизированный формат
+                canvas.toBlob((blob) => {
+                    const optimizedUrl = URL.createObjectURL(blob);
+                    resolve(optimizedUrl);
+                }, 'image/jpeg', 0.8);
+            });
+        }
+
+        // Оптимизируем все изображения при загрузке страницы
         document.addEventListener('DOMContentLoaded', () => {
             setTimeOfDay();
             createStars();
@@ -675,6 +716,18 @@
                 // Добавляем фишку непосредственно в board
                 board.appendChild(player);
             }
+
+            // Оптимизируем все изображения при загрузке страницы
+            const images = document.querySelectorAll('.cell-image');
+            images.forEach(async (img) => {
+                // Создаем временное изображение для получения оригинальных размеров
+                const tempImg = new Image();
+                tempImg.onload = async () => {
+                    const optimizedUrl = await optimizeImage(tempImg);
+                    img.src = optimizedUrl;
+                };
+                tempImg.src = img.src;
+            });
         });
     </script>
 </body>
