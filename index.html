@@ -35,6 +35,7 @@
 
     <!-- Кубики -->
     <div class="dice-container">
+        <button class="roll-button">Кинути кубики 🎲</button>
         <div class="dice" id="dice1">
             <div class="face front">1</div>
         </div>
@@ -179,6 +180,11 @@
         max-width: 1200px;
         margin: 0 auto;
         padding: 10px;
+        margin-left: 250px;
+        position: relative;
+        z-index: 2;
+        background: rgba(255, 255, 255, 0.8);
+        border-radius: 15px;
     }
 
     .logo {
@@ -279,17 +285,111 @@
         50% { transform: scale(1.2); }
         100% { transform: scale(1); }
     }
+
+    /* Добавляем стили для кнопки */
+    .roll-button {
+        padding: 12px 24px;
+        font-size: 18px;
+        font-weight: bold;
+        border: none;
+        border-radius: 25px;
+        cursor: pointer;
+        background: #1565c0;
+        color: white;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        margin-bottom: 20px;
+        width: 200px;
+    }
+
+    .roll-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+        background: #1976d2;
+    }
+
+    .roll-button:active {
+        transform: translateY(1px);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        background: #0d47a1;
+    }
+
+    @keyframes floatCloud {
+        0% {
+            transform: translateX(-150px);
+            opacity: 0;
+        }
+        10% {
+            opacity: 1;
+        }
+        90% {
+            opacity: 1;
+        }
+        100% {
+            transform: translateX(calc(100vw + 150px));
+            opacity: 0;
+        }
+    }
+
+    .floating-cloud {
+        position: fixed;
+        width: 100px;
+        height: 40px;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 20px;
+        z-index: 1;
+        animation: floatCloud 20s linear infinite;
+    }
+
+    .night-time .floating-cloud {
+        background: rgba(149, 167, 189, 0.3);
+        box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(2px);
+    }
+
+    .night-time .floating-cloud::before,
+    .night-time .floating-cloud::after {
+        background: rgba(149, 167, 189, 0.3);
+        box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+    }
+
+    .floating-cloud::before,
+    .floating-cloud::after {
+        content: '';
+        position: absolute;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 50%;
+    }
+
+    .floating-cloud::before {
+        width: 50px;
+        height: 50px;
+        top: -20px;
+        left: 15px;
+    }
+
+    .floating-cloud::after {
+        width: 40px;
+        height: 40px;
+        top: -15px;
+        right: 15px;
+    }
     </style>
 
     <script>
+        // Добавляем флаг для отслеживания состояния броска
+        let isRolling = false;
+
         // Кэшируем DOM элементы
         const player = document.getElementById('player');
         const board = document.getElementById('board');
-        const dice1 = document.getElementById('dice1');
-        const dice2 = document.getElementById('dice2');
         const modal = document.getElementById('prize-modal');
         const prizeText = document.getElementById('prize-text');
         const closeModalButton = document.getElementById('close-modal');
+        const dice1 = document.getElementById('dice1');
+        const dice2 = document.getElementById('dice2');
+        const rollButton = document.querySelector('.roll-button');
         
         // Список призів
         const prizes = [
@@ -432,16 +532,22 @@
             }, (steps + 1) * 1000);
         }
 
+        // Обновляем функцию rollDice
         function rollDice() {
+            if (isRolling) return; // Если бросок уже идет, выходим
+            isRolling = true; // Устанавливаем флаг броска
+
             const dice = document.querySelectorAll('.dice');
             if (dice.length === 0) return;
 
             console.log('🎲 Начинаем бросок кубиков...');
 
-            // Блокируем кубики во время броска
-            dice.forEach(die => {
-                die.style.pointerEvents = 'none';
-            });
+            // Блокируем кнопку и кубики во время броска
+            const rollButton = document.querySelector('.roll-button');
+            if (rollButton) {
+                rollButton.disabled = true;
+                rollButton.style.opacity = '0.7';
+            }
 
             let totalSteps = 0;
             let diceRolled = 0;
@@ -477,11 +583,13 @@
                         console.log(`🎲 Общая сумма: ${totalSteps}`);
                         movePiece(totalSteps);
                         
-                        // Разблокируем кубики через 2 секунды после броска
+                        // Разблокируем кнопку и кубики через 2 секунды после броска
                         setTimeout(() => {
-                            dice.forEach(die => {
-                                die.style.pointerEvents = 'auto';
-                            });
+                            isRolling = false;
+                            if (rollButton) {
+                                rollButton.disabled = false;
+                                rollButton.style.opacity = '1';
+                            }
                         }, 2000);
                     }
                 }, 1500);
@@ -666,32 +774,90 @@
             });
         }
 
-        // Оптимизируем все изображения при загрузке страницы
+        // Функция создания облаков
+        function createFloatingClouds() {
+            const cloudContainer = document.createElement('div');
+            cloudContainer.style.position = 'fixed';
+            cloudContainer.style.top = '0';
+            cloudContainer.style.left = '0';
+            cloudContainer.style.width = '100%';
+            cloudContainer.style.height = '100%';
+            cloudContainer.style.pointerEvents = 'none';
+            cloudContainer.style.zIndex = '1';
+            document.body.appendChild(cloudContainer);
+
+            function updateClouds() {
+                const isNightTime = document.body.classList.contains('night-time');
+                cloudContainer.innerHTML = ''; // Очищаем контейнер
+
+                // Создаем 15 облаков
+                for (let i = 0; i < 15; i++) {
+                    const cloud = document.createElement('div');
+                    cloud.className = 'floating-cloud';
+                    
+                    // Случайная позиция по вертикали
+                    cloud.style.top = `${Math.random() * 70}%`;
+                    
+                    // Случайный размер
+                    const scale = 0.5 + Math.random() * 1.5;
+                    cloud.style.transform = `scale(${scale})`;
+                    
+                    // Случайная задержка
+                    cloud.style.animationDelay = `${Math.random() * 20}s`;
+                    
+                    // Случайная скорость (ночью медленнее)
+                    const duration = isNightTime ? 
+                        25 + Math.random() * 35 : // ночью 25-60 секунд
+                        15 + Math.random() * 25;  // днем 15-40 секунд
+                    cloud.style.animationDuration = `${duration}s`;
+                    
+                    // Случайная прозрачность (ночью более прозрачные)
+                    const opacity = isNightTime ?
+                        0.3 + Math.random() * 0.3 : // ночью 30-60%
+                        0.5 + Math.random() * 0.5;  // днем 50-100%
+                    cloud.style.opacity = opacity;
+                    
+                    cloudContainer.appendChild(cloud);
+                }
+            }
+
+            // Обновляем облака при смене времени суток
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                    if (mutation.attributeName === 'class') {
+                        updateClouds();
+                    }
+                });
+            });
+
+            observer.observe(document.body, {
+                attributes: true
+            });
+
+            // Создаем начальные облака
+            updateClouds();
+        }
+
+        // Обновляем обработчики событий
         document.addEventListener('DOMContentLoaded', () => {
             setTimeOfDay();
             createStars();
             const cleanup = createShootingStars();
-            
-            // Обработчики событий для кубиков
-            const dice1 = document.getElementById('dice1');
-            const dice2 = document.getElementById('dice2');
-            
-            if (dice1 && dice2) {
-                console.log('🎲 Добавляем обработчики для кубиков');
-                dice1.addEventListener('click', () => {
-                    console.log('🎲 Нажатие на первый кубик');
-                    rollDice();
+            createFloatingClouds();
+
+            // Настраиваем кнопку броска
+            if (rollButton) {
+                rollButton.addEventListener('click', () => {
+                    if (!isRolling) {
+                        rollDice();
+                    }
                 });
-                dice2.addEventListener('click', () => {
-                    console.log('🎲 Нажатие на второй кубик');
-                    rollDice();
-                });
-            } else {
-                console.error('❌ Кубики не найдены на странице');
             }
-            
-            closeModalButton.addEventListener('click', () => modal.style.display = 'none');
-            
+
+            // Отключаем клики на кубиках
+            if (dice1) dice1.style.cursor = 'default';
+            if (dice2) dice2.style.cursor = 'default';
+
             // Обновление времени суток
             setInterval(setTimeOfDay, 60000);
             
